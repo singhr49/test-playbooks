@@ -1,5 +1,5 @@
 // ***********************************************************
-// Support/index.js is processed and
+// This example support/index.js is processed and
 // loaded automatically before your test files.
 //
 // This is a great place to put global configuration and
@@ -14,13 +14,7 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands';
-import '@percy/cypress';
+import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-
-beforeEach(() => {
-  cy.login() // For test isolation, Cypress clears out user sessions (see Cypress Best Practices)
-  cy.generateTestID() // Generates a number for unique name suffixes on every test run.
-})
