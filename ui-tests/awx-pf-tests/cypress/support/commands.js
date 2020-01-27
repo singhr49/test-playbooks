@@ -1,5 +1,4 @@
 import '@percy/cypress'
-
 /**
  * Generates a random number to be assigned to each individual test run.
  * This is useful for randomly generated names for resources used in tests.

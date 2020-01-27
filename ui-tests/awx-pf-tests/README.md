@@ -7,6 +7,7 @@ This is an automated functional test suite for the AWX Patternfly UI. It uses Cy
 ### Framework Reference 
 - [Cypress Github page](https://github.com/cypress-io/cypress)
 - [Cypress Docs](https://docs.cypress.io)
+- [Percy Docs](https://docs.percy.io/docs/cypress)
 - [awxkit](https://github.com/ansible/awx/tree/devel/awxkit)
 
 ### Requirements and installation.
@@ -86,6 +87,26 @@ To run the test suite in headless mode (assuming you are in the same directory a
 ```
 npm run cypress-headless
 ```
+
+### Integrating Percy with your Cypress tests:
+
+Before you can successfully run Percy, the PERCY_TOKEN environment variable must be set.
+The token can be found in your project settings on percy dashboard
+
+```
+export PERCY_TOKEN=<your token here>
+```
+Now, insert the cypress command `cy.percySnapshot()` in the tests where you would like percy to take snapshots for visual diffing.
+
+For more options to adjust attributes like snapshot name, width and height, follow the documentation [here](https://docs.percy.io/docs/cypress#section-configuration)
+
+Finally, use the following command to run the tests:
+```
+percy exec -- cypress run
+```
+
+That's it! Now, whenever CI runs, a snapshot of the app in that state will be uploaded to Percy for visual regression testing!
+
 
 ### Directory Organization
 At the top level, there is a `cypress.json` file and a `cypress/` directory; within this directory, there are four folders:
