@@ -43,6 +43,11 @@ pipeline {
             description: 'Can be either a #channel or @user',
             defaultValue: '#e2e-test-results'
         )
+        booleanParam(
+            name: 'UPLOAD_SNAPSHOTS_TO_PERCY',
+            description: 'If checked, Snapshots will be captured and uploaded to Percy for Visual Regression Testing',
+            defaultValue: false
+        )
     }
     options {
         timeout(time: 2, unit: 'HOURS')
@@ -118,6 +123,7 @@ pipeline {
            }
         }
         stage('Start awx-pf locally') {
+            when {expression { return !params.UPLOAD_SNAPSHOTS_TO_PERCY } }
             steps {
                 withCredentials([file(credentialsId: '86ed99e9-dad9-49e9-b0db-9257fb563bad', variable: 'JSON_KEY_FILE_PATH')]) {
                     sshagent(['github-ansible-jenkins-nopassphrase']) {
@@ -144,7 +150,35 @@ pipeline {
                 }
             }
           
-        }  
+        }
+        stage('Run Patternfly E2E and Upload snapshots to Percy') {
+            when {expression { return params.UPLOAD_SNAPSHOTS_TO_PERCY } }
+            steps {
+                withCredentials([file(credentialsId: '86ed99e9-dad9-49e9-b0db-9257fb563bad', variable: 'JSON_KEY_FILE_PATH')]) {
+                    sshagent(['github-ansible-jenkins-nopassphrase']) {
+                        sh '''#!/bin/bash -xe
+                        #set remote target
+                        export TARGET_HOST="${AWX_E2E_URL}"
+                        export TARGET_PORT='443'
+
+                        set +x
+                        docker login -u _json_key -p "$(cat "${JSON_KEY_FILE_PATH}")" https://gcr.io
+                        set -x
+
+                        cd awx/awx/ui_next
+                        docker build -t awx-ui-next .
+                        docker run --name 'ui-next' --network='default' -e TARGET_PORT='443' -e TARGET_HOST="${AWX_E2E_URL}" -p '3001:3001' -d -v $(pwd)/src:/ui_next/src awx-ui-next
+                        sleep 10
+
+                        cd ../../../tower-qa/ui-tests/awx-pf-tests
+                        docker build -t awx-pf-tests .
+                        docker run -e CYPRESS_AWX_E2E_USERNAME="${AWX_E2E_USERNAME}" -e CYPRESS_AWX_E2E_PASSWORD="${AWX_E2E_PASSWORD}" --network 'default' --link 'ui-next:ui-next' -v $PWD:/e2e -w /e2e awx-pf-tests run --project .
+
+                        '''
+                    }
+                }
+            }
+        }
     }
     post {
         always {
