@@ -102,7 +102,7 @@ For more options to adjust attributes like snapshot name, width and height, foll
 
 Finally, use the following command to run the tests:
 ```
-percy exec -- cypress run
+npx percy exec -- cypress run
 ```
 
 That's it! Now, whenever CI runs, a snapshot of the app in that state will be uploaded to Percy for visual regression testing!
