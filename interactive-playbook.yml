@@ -1,0 +1,15 @@
+---
+- name: Test Playbook
+  hosts: all
+  tasks:
+  - name: Debug Task
+    debug:
+      msg: "This is Debug Task"
+
+  - name: Pause until you verify updates to an application were successful.
+    ansible.builtin.pause:
+      prompt: "Make sure expected configuration are as expected"
+
+  - name: Debug Task2
+    debug:
+      msg: "This is Debug Task2"
